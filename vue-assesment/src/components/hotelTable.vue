@@ -13,7 +13,7 @@
         <tbody>
           <tr v-for="item in list" :key="item.id">
             <td>{{item.name}}</td>
-            <td>{{item.no}}</td>
+            <td>{{`${item.no},${item.street},${item.landmark},${item.area}`}}</td>
             <td>{{item.pincode}}</td>          
             <td >
               <v-btn @click="editItem(item)"> 
@@ -109,7 +109,7 @@
                     <v-btn
                       color="Grey"
                       text
-                      @click="close"
+                      @click="closed"
                     >
                       Cancel
                     </v-btn>
@@ -159,7 +159,7 @@ var band
     },
     watch: {
         dialog(val) {
-            val || this.close();
+            val || this.closed();
         },
         dialogDelete(val) {
             val || this.closeDelete();
@@ -206,7 +206,7 @@ var band
             band = item;
             this.formInput={name :item.name,no : item.no,street:item.street,landmark:item.landmark,area:item.area,pincode:item.pincode}
         },
-        close() {
+        closed() {
             this.dialog = false;
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem);

@@ -27,7 +27,7 @@ export default class CustomersController {
   }
   public async search({ request }: HttpContextContract) {
     const file = request.input('search')
-    return await Database.from('forms')
+    return await Database.from('customers')
       .select('*')
       .where((query) => {
         if (/^[0-9]/.test(file)) {
@@ -35,7 +35,7 @@ export default class CustomersController {
         }
       })
       .orWhere((query: any) => {
-        query.Where('name', 'ilike', `%${file}%`)
+        query.orWhere('name', 'ilike', `%${file}%`)
       })
   }
   public async nameA() {
