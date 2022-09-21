@@ -6,6 +6,7 @@ export default class CustomersController {
   public async insert({ request }: HttpContextContract) {
     console.log(request)
     let tab = new Customer()
+    tab.customerId = request.input('customerId')
     tab.name = request.input('name')
     tab.owner = request.input('owner')
     await tab.save()
@@ -25,6 +26,14 @@ export default class CustomersController {
     user.delete()
     await user.save()
   }
+  public async join() {
+    return await Database.from('customers')
+      .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
+      .select('customers.*')
+      .groupBy('hotels.customers_id', 'customers.id')
+      .count('hotels.customers_id as total')
+  }
+
   public async search({ request }: HttpContextContract) {
     const file = request.input('search')
     return await Database.from('customers')

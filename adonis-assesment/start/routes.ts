@@ -7,6 +7,7 @@ Route.group(() => {
   Route.post('search', 'CustomersController.search')
   Route.get('/nameA', 'CustomersController.nameA')
   Route.get('/nameD', 'CustomersController.nameD')
+  Route.get('/join', 'CustomersController.join')
 }).prefix('/customers')
 Route.group(() => {
   Route.post('/insert', 'HotelsController.insert')

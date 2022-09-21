@@ -5,6 +5,7 @@ import Hotel from '../../Models/Hotel'
 export default class HotelsController {
   public async insert({ request }: HttpContextContract) {
     let tab = new Hotel()
+    tab.customersId = request.input('customer_id')
     tab.name = request.input('name')
     tab.no = request.input('no')
     tab.street = request.input('street')
@@ -39,7 +40,10 @@ export default class HotelsController {
       .select('*')
       .where((query) => {
         if (/^[0-9]/.test(file)) {
-          query.where('id', file).orWhere('pincode', 'ilike', `${file}`)
+          query
+            .where('id', file)
+            .orWhere('pincode', 'ilike', `%${file}%`)
+            .orWhere('customers_id', 'ilike', `%${file}%`)
         }
       })
       .orWhere((query: any) => {

@@ -5,6 +5,7 @@
             <button @click="asc('/nameA')"><v-icon x-small>mdi-arrow-up</v-icon></button>
             <button @click="desc('/nameD')"><v-icon x-small>mdi-arrow-down</v-icon></button>
           </th>
+          <th>CustomersId</th>
           <th>Owner</th>
           <th>Address</th>
           <th>pincode</th>
@@ -14,8 +15,9 @@
         <tbody>
           <tr v-for="item in list" :key="item.id">
             <td>{{item.name}}</td>
+            <td>{{item.customers_id}}</td>
             <td>{{item.owner}}</td>
-            <td>{{`${item.no},${item.street},${item.landmark},${item.area}`}}</td>
+            <td>{{`${item.no},${item.street},${item.landmark},${item.area},${item.pincode}`}}</td>
             <td>{{item.pincode}}</td>          
             <td >
               <v-btn @click="editItem(item)"> 
@@ -64,6 +66,13 @@
                               v=>(/^[A-Za-z]+$/.test(v)) || 'Enter the valid name',
                             ]"
                           ></v-text-field>
+                          <v-text-field
+                            v-model="formInput1.customers_id"
+                            :rules="[
+                               v => !!v || 'Id is required',
+                               v => (/^[0-9]+$/.test(v)) || 'Id must be valid',]"
+                               label="Enter Id"
+                         ></v-text-field>
                           <v-text-field
                             v-model="formInput1.no"
                             :rules="[
@@ -145,6 +154,7 @@ var band
         index:"",
         formInput1:{
         name: "",
+        customers_id:"",
         owner:"",
         no:"",
         street:"",
@@ -176,15 +186,7 @@ var band
             console.log(res.data)
           })
 
-    },
-    // async mounted() {
-    // this.join()
-    // await Vue.axios.get("http://127.0.0.1:3333/hotels/select").then((res)=>{
-    //         this.list=res.data;
-    //         console.log(res.data);
-    //         })
-
-   // },
+    }, 
     methods: {
         async  insert(){
         await Vue.axios.post("http://127.0.0.1:3333/hotels/insert",this.formInput1).then((res)=>{
@@ -227,7 +229,8 @@ var band
             this.fork = false;
             this.dialog = true;
             band = item;
-            this.formInput1={name :item.name,owner :item.owner,no : item.no,street:item.street,landmark:item.landmark,area:item.area,pincode:item.pincode}
+            this.formInput1={name :item.name,owner :item.owner,no : item.no,street:item.street,landmark:item.landmark,
+                            area:item.area,pincode:item.pincode,customers_id:item.customers_id}
         },
         closed() {
             this.dialog = true;

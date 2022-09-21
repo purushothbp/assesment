@@ -5,6 +5,7 @@
             <button @click="asc('/nameA')"><v-icon x-small>mdi-arrow-up</v-icon></button>
             <button @click="desc('/nameD')"><v-icon x-small>mdi-arrow-down</v-icon></button>
           </th>
+          <th>customerId</th>
           <th>owner</th>
           <th>No.of branches</th>
           <th>Actions</th>
@@ -13,6 +14,7 @@
         <tbody>
           <tr v-for="item in list" :key="item.id">
             <td>{{item.name}}</td>
+            <td>{{item.customer_id}}</td>
             <td>{{item.owner}}</td>   
             <td>{{item.total}}</td>         
             <td >
@@ -52,6 +54,13 @@
                         <v-form
                         ref="form"
                           lazy-validation>
+                          <v-text-field
+                            v-model="formInput.customer_id"
+                            :rules="[
+                               v => !!v || 'Id is required',
+                               v => (/^[0-9]+$/.test(v)) || 'Id must be valid',]"
+                               label="Enter Id"
+                         ></v-text-field>
                           <v-text-field
                             v-model="formInput.name"
                             label="Enter Hotel Name"
@@ -115,6 +124,7 @@ var band
         formInput:{
         name: "",
         owner:"",
+        customer_id:"",
         total:"",
       },
     }
@@ -135,9 +145,9 @@ var band
     },
 
     async mounted() {
-    await Vue.axios.get("http://127.0.0.1:3333/customers/select").then((res)=>{
-            this.list=res.data;
-            console.warn(res.data);
+      Vue.axios.get(`http://127.0.0.1:3333/customers/join/`,this.formInput).then((res)=>{
+            this.list=res.data
+            console.log(res.data)
             })
 
     },
@@ -146,6 +156,8 @@ var band
         await Vue.axios.post("http://127.0.0.1:3333/customers/insert",this.formInput).then((res)=>{
             console.log(res)          
           })
+          this.dialog=false;
+          this.$refs.form.reset();
         },
         async read(){
             await Vue.axios.get("http://127.0.0.1:3333/customers/select").then((res)=>{
@@ -167,6 +179,8 @@ var band
                 .then((res) => {
                 console.warn((res));
             });
+            this.dialog=false;
+          this.$refs.form.reset();
         },
         editItem(item) {
             this.fork = false;
