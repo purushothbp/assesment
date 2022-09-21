@@ -5,6 +5,7 @@
             <button @click="asc('/nameA')"><v-icon x-small>mdi-arrow-up</v-icon></button>
             <button @click="desc('/nameD')"><v-icon x-small>mdi-arrow-down</v-icon></button>
           </th>
+          <th>Owner</th>
           <th>Address</th>
           <th>pincode</th>
           <th>Actions</th>
@@ -13,6 +14,7 @@
         <tbody>
           <tr v-for="item in list" :key="item.id">
             <td>{{item.name}}</td>
+            <td>{{item.owner}}</td>
             <td>{{`${item.no},${item.street},${item.landmark},${item.area}`}}</td>
             <td>{{item.pincode}}</td>          
             <td >
@@ -44,7 +46,7 @@
                   >
                     POPUP
                   </v-btn>
-                  <searched @searchTable="getData($event)"/>
+                  <searched  @searchTable="getData($event)"/>
                 </template>
                 <v-card>
                   <v-card-text>
@@ -53,7 +55,7 @@
                         ref="form"
                           lazy-validation>
                           <v-text-field
-                            v-model="formInput.name"
+                            v-model="formInput1.name"
                             label="Enter Hotel Name"
                             placeholder="enter name"
                             :rules="[
@@ -63,14 +65,14 @@
                             ]"
                           ></v-text-field>
                           <v-text-field
-                            v-model="formInput.no"
+                            v-model="formInput1.no"
                             :rules="[
                                v => !!v || 'Door no  is required',
                                v => (/^[0-9]+$/.test(v)) || 'Door number must be valid',]"
                                label="Enter Door no"
                          ></v-text-field>
                           <v-text-field
-                            v-model="formInput.street"
+                            v-model="formInput1.street"
                             label="Enter street"
                             placeholder="enter street"
                             :rules="[
@@ -78,7 +80,7 @@
                               v => (v && v.length <= 20)]"
                           ></v-text-field>
                           <v-text-field
-                            v-model="formInput.landmark"
+                            v-model="formInput1.landmark"
                             label="Enter landmark"
                             placeholder="enter landmark"
                             :rules="[
@@ -86,7 +88,7 @@
                               v => (v && v.length <= 20)]"
                           ></v-text-field>
                           <v-text-field
-                            v-model="formInput.area"
+                            v-model="formInput1.area"
                             label="Enter area"
                             placeholder="enter area"
                             :rules="[
@@ -94,7 +96,7 @@
                               v => (v && v.length <= 20)]"
                           ></v-text-field>
                           <v-text-field
-                          v-model="formInput.pincode"
+                          v-model="formInput1.pincode"
                           :rules="[
                              v => !!v || 'pincode is required',
                              v =>v && v.length==10,
@@ -141,8 +143,9 @@ var band
         details: [],
         editedIndex: -1,
         index:"",
-        formInput:{
+        formInput1:{
         name: "",
+        owner:"",
         no:"",
         street:"",
         landmark:"",
@@ -166,20 +169,32 @@ var band
         },
     },
 
-    async mounted() {
-    await Vue.axios.get("http://127.0.0.1:3333/hotels/select").then((res)=>{
-            this.list=res.data;
-            console.warn(res.data);
-            })
+    mounted(){
+
+    Vue.axios.get(`http://127.0.0.1:3333/hotels/join/`,this.formInput1).then((res)=>{
+            this.list=res.data
+            console.log(res.data)
+          })
 
     },
+    // async mounted() {
+    // this.join()
+    // await Vue.axios.get("http://127.0.0.1:3333/hotels/select").then((res)=>{
+    //         this.list=res.data;
+    //         console.log(res.data);
+    //         })
+
+   // },
     methods: {
         async  insert(){
-        await Vue.axios.post("http://127.0.0.1:3333/hotels/insert",this.formInput).then((res)=>{
-            console.log(res)          
+        await Vue.axios.post("http://127.0.0.1:3333/hotels/insert",this.formInput1).then((res)=>{
+            console.log(res)      
           })
+          this.dialog=false;
+          this.$refs.form.reset();
         },
         async read(){
+          this.join()
             await Vue.axios.get("http://127.0.0.1:3333/hotels/select").then((res)=>{
             this.list=res.data;
             console.log(res.data);
@@ -193,21 +208,29 @@ var band
             console.log(value);
             this.list = value.data;
         },
+        async join(){
+          await axios.get(`http://127.0.0.1:3333/hotels/join/`,this.formInput1).then((res)=>{
+            this.list=res.data
+            console.log(res.data)
+          })
+        },
         async save() {
             this.button = true;
-            await axios.put(`http://127.0.0.1:3333/hotels/update/${band.id}`,this.formInput)
+            await axios.put(`http://127.0.0.1:3333/hotels/update/${band.id}`,this.formInput1)
                 .then((res) => {
                 console.warn((res));
             });
+            this.dialog=false;
+            this.$refs.form.reset();
         },
         editItem(item) {
             this.fork = false;
             this.dialog = true;
             band = item;
-            this.formInput={name :item.name,no : item.no,street:item.street,landmark:item.landmark,area:item.area,pincode:item.pincode}
+            this.formInput1={name :item.name,owner :item.owner,no : item.no,street:item.street,landmark:item.landmark,area:item.area,pincode:item.pincode}
         },
         closed() {
-            this.dialog = false;
+            this.dialog = true;
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem);
                 this.editedIndex = -1;
@@ -215,18 +238,21 @@ var band
             this.dialog = false;
             this.$refs.form.reset();
         },
-        getData(value){
-          this.forms=value.data
-        },
+        async getData(value){
+        console.log(value)
+        let search1=await axios.post('http://127.0.0.1:3333/hotels/search',{search:value})
+        this.list=search1.data
+  
+      },
 
         async asc(val){
-          await axios.read(`http://127.0.0.1:3333/hotels/nameA/${val}`).then((res)=>{
+          await Vue.axios.get(`http://127.0.0.1:3333/hotels${val}`).then((res)=>{
             console.warn(res);
-            this.forms=res.data
+            this.list=res.data
           })
         },
         async desc(val){
-          await axios.read(`http://127.0.0.1:3333/hotels/nameD/${val}`).then((res)=>{
+          await Vue.axios.get(`http://127.0.0.1:3333/hotels${val}`).then((res)=>{
             console.warn(res);
             this.forms=res.data
           })

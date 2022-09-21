@@ -11,9 +11,9 @@ export default class HotelsController {
     tab.landmark = request.input('landmark')
     tab.area = request.input('area')
     tab.pincode = request.input('pincode')
-
     tab.save()
-    return 'Successfully Inserted'
+    // let address = `${hotels.no} ${hotels.street} ${hotels.landmark} ${hotels.area}`
+    // return response.json({ address })
   }
   public async select() {
     return await Hotel.query().orderBy('id', 'asc')
@@ -39,12 +39,18 @@ export default class HotelsController {
       .select('*')
       .where((query) => {
         if (/^[0-9]/.test(file)) {
-          query.where('id', file)
+          query.where('id', file).orWhere('pincode', 'ilike', `${file}`)
         }
       })
       .orWhere((query: any) => {
         query.orWhere('name', 'ilike', `%${file}%`)
       })
+  }
+  public async join() {
+    const tablejoin = await Database.from('hotels')
+      .join('customers', 'customers.name', '=', 'hotels.name')
+      .select('*')
+    return tablejoin
   }
   public async nameA() {
     return await Hotel.query().orderBy('name', 'asc')

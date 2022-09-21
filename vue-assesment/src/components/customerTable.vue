@@ -184,18 +184,20 @@ var band
             this.dialog = false;
             this.$refs.form.reset();
         },
-        getData(value){
-          this.forms=value.data
-        },
-
+        async getData(value){
+        console.log(value)
+         let search1=await axios.post('http://127.0.0.1:3333/customers/search',{search:value})
+        this.list=search1.data
+  
+      },
         async asc(val){
-          await axios.read(`http://127.0.0.1:3333/customers/nameA/${val}`).then((res)=>{
+          await axios.get(`http://127.0.0.1:3333/customers${val}`).then((res)=>{
             console.warn(res);
             this.forms=res.data
           })
         },
         async desc(val){
-          await axios.read(`http://127.0.0.1:3333/customers/nameD/${val}`).then((res)=>{
+          await axios.get(`http://127.0.0.1:3333/customers${val}`).then((res)=>{
             console.warn(res);
             this.forms=res.data
           })

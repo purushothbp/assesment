@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input type="text" v-model="val" placeholder="search" v-on:keyup="search(val)">
+        <v-text-field v-model="input" placeholder="search" v-on:keyup="search">Search</v-text-field>
     </div>
 </template>
 
@@ -15,7 +15,6 @@ export default{
     name:'search',
     input:'',
     props:{
-        link:String
     },
     data:()=>{
         return {
@@ -24,12 +23,7 @@ export default{
     },
     methods:{
         search(){
-                 if(this.val.length!=0){
-                  Vue.axios.post('http://127.0.0.1:3333/customers/search',console.log({search:this.val}))
-                  .then((res)=>{
-                  this.$emit('searchTable',res)
-                  })
-                }
+            this.$emit('searchTable',this.input)
         }
     }
 }

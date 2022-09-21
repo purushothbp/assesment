@@ -35,7 +35,7 @@ export default class CustomersController {
         }
       })
       .orWhere((query: any) => {
-        query.orWhere('name', 'ilike', `%${file}%`)
+        query.orWhere('name', 'ilike', `%${file}%`).orwhere('owner', 'ilike', `%${file}%`)
       })
   }
   public async nameA() {
