@@ -4,7 +4,7 @@ Route.group(() => {
   Route.get('/select', 'CustomersController.select')
   Route.put('/update/:id', 'CustomersController.update')
   Route.delete('/delete/:id', 'CustomersController.delete')
-  Route.post('search', 'CustomersController.search')
+  Route.post('/search', 'CustomersController.search')
   Route.get('/nameA', 'CustomersController.nameA')
   Route.get('/nameD', 'CustomersController.nameD')
   Route.get('/join', 'CustomersController.join')

@@ -15,9 +15,9 @@
         <tbody>
           <tr v-for="item in list" :key="item.id">
             <td>{{item.name}}</td>
-            <td>{{item.customers_id}}</td>
+            <td>{{item.customerId}}</td>
             <td>{{item.owner}}</td>
-            <td>{{`${item.no},${item.street},${item.landmark},${item.area},${item.pincode}`}}</td>
+            <td>{{`${item.address}`}}</td>
             <td>{{item.pincode}}</td>          
             <td >
               <v-btn @click="editItem(item)"> 
@@ -67,7 +67,7 @@
                             ]"
                           ></v-text-field>
                           <v-text-field
-                            v-model="formInput1.customers_id"
+                            v-model="formInput1.customersId"
                             :rules="[
                                v => !!v || 'Id is required',
                                v => (/^[0-9]+$/.test(v)) || 'Id must be valid',]"
@@ -154,7 +154,7 @@ var band
         index:"",
         formInput1:{
         name: "",
-        customers_id:"",
+        customersId:"",
         owner:"",
         no:"",
         street:"",
@@ -185,7 +185,6 @@ var band
             this.list=res.data
             console.log(res.data)
           })
-
     }, 
     methods: {
         async  insert(){
@@ -196,9 +195,8 @@ var band
           this.$refs.form.reset();
         },
         async read(){
-          this.join()
             await Vue.axios.get("http://127.0.0.1:3333/hotels/select").then((res)=>{
-            this.list=res.data;
+            this.list=res.data.rows;
             console.log(res.data);
             })
         },
@@ -209,12 +207,6 @@ var band
         Changed(value) {
             console.log(value);
             this.list = value.data;
-        },
-        async join(){
-          await axios.get(`http://127.0.0.1:3333/hotels/join/`,this.formInput1).then((res)=>{
-            this.list=res.data
-            console.log(res.data)
-          })
         },
         async save() {
             this.button = true;
@@ -230,7 +222,7 @@ var band
             this.dialog = true;
             band = item;
             this.formInput1={name :item.name,owner :item.owner,no : item.no,street:item.street,landmark:item.landmark,
-                            area:item.area,pincode:item.pincode,customers_id:item.customers_id}
+                            area:item.area,pincode:item.pincode,customersId:item.customersId}
         },
         closed() {
             this.dialog = true;
@@ -257,7 +249,7 @@ var band
         async desc(val){
           await Vue.axios.get(`http://127.0.0.1:3333/hotels${val}`).then((res)=>{
             console.warn(res);
-            this.forms=res.data
+            this.list=res.data
           })
         },
     },

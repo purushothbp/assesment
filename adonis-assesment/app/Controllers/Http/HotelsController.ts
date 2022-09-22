@@ -1,11 +1,11 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Database from '@ioc:Adonis/Lucid/Database'
 import Hotel from '../../Models/Hotel'
+import Customer from '../../Models/Customer'
 
 export default class HotelsController {
   public async insert({ request }: HttpContextContract) {
     let tab = new Hotel()
-    tab.customersId = request.input('customer_id')
+    tab.customersId = request.input('customersId')
     tab.name = request.input('name')
     tab.no = request.input('no')
     tab.street = request.input('street')
@@ -13,11 +13,10 @@ export default class HotelsController {
     tab.area = request.input('area')
     tab.pincode = request.input('pincode')
     tab.save()
-    // let address = `${hotels.no} ${hotels.street} ${hotels.landmark} ${hotels.area}`
-    // return response.json({ address })
   }
   public async select() {
-    return await Hotel.query().orderBy('id', 'asc')
+    const data = await Hotel.query().select()
+    return data
   }
   public async update({ request }: HttpContextContract) {
     const update = await Hotel.findOrFail(request.params().id)
@@ -36,14 +35,11 @@ export default class HotelsController {
   }
   public async search({ request }: HttpContextContract) {
     const file = request.input('search')
-    return await Database.from('hotels')
+    return await Hotel.query()
       .select('*')
       .where((query) => {
         if (/^[0-9]/.test(file)) {
-          query
-            .where('id', file)
-            .orWhere('pincode', 'ilike', `%${file}%`)
-            .orWhere('customers_id', 'ilike', `%${file}%`)
+          query.where('id', file)
         }
       })
       .orWhere((query: any) => {
@@ -51,15 +47,74 @@ export default class HotelsController {
       })
   }
   public async join() {
-    const tablejoin = await Database.from('hotels')
-      .join('customers', 'customers.name', '=', 'hotels.name')
+    const data = await Customer.query()
+      .join('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
       .select('*')
-    return tablejoin
+    const newData = data.map((el) =>
+      Object.assign({}, el.$attributes, {
+        pincode: el.$extras['pincode'],
+        address:
+          el.$extras['no'] +
+          ',' +
+          el.$extras['street'] +
+          ',' +
+          el.$extras['landmark'] +
+          ',' +
+          el.$extras['area'] +
+          ',' +
+          +el.$extras['pincode'] +
+          ',',
+      })
+    )
+    console.log(newData)
+    return newData
   }
   public async nameA() {
-    return await Hotel.query().orderBy('name', 'asc')
+    const data = await Customer.query()
+      .join('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
+      .select('*')
+      .orderBy('hotels.name', 'asc')
+    const newData = data.map((el) =>
+      Object.assign({}, el.$attributes, {
+        pincode: el.$extras['pincode'],
+        address:
+          el.$extras['no'] +
+          ',' +
+          el.$extras['street'] +
+          ',' +
+          el.$extras['landmark'] +
+          ',' +
+          el.$extras['area'] +
+          ',' +
+          +el.$extras['pincode'] +
+          ',',
+      })
+    )
+    console.log(newData)
+    return newData
   }
   public async nameD() {
-    return await Hotel.query().orderBy('name', 'desc')
+    const data = await Customer.query()
+      .join('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
+      .select('*')
+      .orderBy('hotels.name', 'desc')
+    const newData = data.map((el) =>
+      Object.assign({}, el.$attributes, {
+        pincode: el.$extras['pincode'],
+        address:
+          el.$extras['no'] +
+          ',' +
+          el.$extras['street'] +
+          ',' +
+          el.$extras['landmark'] +
+          ',' +
+          el.$extras['area'] +
+          ',' +
+          +el.$extras['pincode'] +
+          ',',
+      })
+    )
+    console.log(newData)
+    return newData
   }
 }

@@ -207,13 +207,13 @@ var band
         async asc(val){
           await axios.get(`http://127.0.0.1:3333/customers${val}`).then((res)=>{
             console.warn(res);
-            this.forms=res.data
+            this.list=res.data
           })
         },
         async desc(val){
           await axios.get(`http://127.0.0.1:3333/customers${val}`).then((res)=>{
             console.warn(res);
-            this.forms=res.data
+            this.list=res.data
           })
         },
     },

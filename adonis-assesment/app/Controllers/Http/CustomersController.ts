@@ -1,5 +1,4 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Database from '@ioc:Adonis/Lucid/Database'
 import Customer from '../../Models/Customer'
 
 export default class CustomersController {
@@ -27,16 +26,17 @@ export default class CustomersController {
     await user.save()
   }
   public async join() {
-    return await Database.from('customers')
+    const data = await Customer.query()
       .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
       .select('customers.*')
       .groupBy('hotels.customers_id', 'customers.id')
       .count('hotels.customers_id as total')
+      .orderBy(`customers.*`, 'asc')
+    return data
   }
-
   public async search({ request }: HttpContextContract) {
     const file = request.input('search')
-    return await Database.from('customers')
+    return await Customer.query()
       .select('*')
       .where((query) => {
         if (/^[0-9]/.test(file)) {
@@ -44,7 +44,7 @@ export default class CustomersController {
         }
       })
       .orWhere((query: any) => {
-        query.orWhere('name', 'ilike', `%${file}%`).orwhere('owner', 'ilike', `%${file}%`)
+        query.orWhere('name', 'ilike', `%${file}%`)
       })
   }
   public async nameA() {
