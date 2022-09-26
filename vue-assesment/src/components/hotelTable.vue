@@ -67,7 +67,7 @@
                             ]"
                           ></v-text-field>
                           <v-text-field
-                            v-model="formInput1.customersId"
+                            v-model="formInput1.customer_id"
                             :rules="[
                                v => !!v || 'Id is required',
                                v => (/^[0-9]+$/.test(v)) || 'Id must be valid',]"
@@ -239,8 +239,9 @@ var band
         },
         async getData(value){
         console.log(value)
-        let search1=await axios.post('http://127.0.0.1:3333/hotels/search',{search:value},this.key)
-        this.list=search1.data
+        let search=await axios.post('http://127.0.0.1:3333/hotels/search',{search:value},this.key)
+        this.list=search.data
+        console.log(search)
   
       },
 

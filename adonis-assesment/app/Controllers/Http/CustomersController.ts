@@ -50,24 +50,26 @@ export default class CustomersController {
     const file = await Customer.query()
       .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
       .select('customers.*')
-      .select('customers.customer_id')
       .groupBy('customers.id')
       .count('hotels.customers_id as count')
-      .where((query) => {
-        if (/^[0-9]/.test(search)) {
-          query.where('customer_id', search)
-        }
+      .if(search, (query) => {
+        query.where((q) => {
+          q.whereRaw(`customer_id::text ilike '%${search}%'`)
+            .orWhereILike('customers.name', `%${search}%`)
+            .orWhereILike('owner', `%${search}%`)
+        })
       })
-      .orWhere((query: any) => {
-        query.where('customers.name', 'ilike', `%${search}%`)
-      })
-    const search1 = file.map((el) =>
-      Object.assign({}, el.$attributes, {
-        total: el.$extras.total,
-      })
-    )
-    console.log(search1)
-    return search1
+      .then((data) =>
+        data.map((el) => {
+          const data = el.toJSON()
+          return {
+            ...data,
+            total: el.$extras.count,
+          }
+        })
+      )
+    console.log(file)
+    return file
   }
   public async nameA() {
     const read = await Customer.query()

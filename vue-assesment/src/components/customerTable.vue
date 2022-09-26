@@ -190,7 +190,7 @@ var band
             this.fork = false;
             this.dialog = true;
             band = item;
-            this.formInput={name :item.name,owner : item.owner,customer_id:this.customer_id
+            this.formInput={name :item.name,owner : item.owner,customer_id:item.customer_id
             }
         },
         close() {
@@ -204,8 +204,9 @@ var band
         },
         async getData(value){
         console.log(value)
-         let search1=await axios.post('http://127.0.0.1:3333/customers/search' , {search:value},this.key)
-        this.list=search1.data
+         let search=await axios.post('http://127.0.0.1:3333/customers/search' , {search:value},this.key)
+        this.list=search.data
+        console.log(search)
   
       },
         async asc(val){

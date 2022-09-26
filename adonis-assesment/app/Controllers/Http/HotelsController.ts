@@ -39,23 +39,38 @@ export default class HotelsController {
   public async search({ request }: HttpContextContract) {
     var search = request.input('search')
     const file = await Customer.query()
-      .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
-      .select('hotels.*')
-      .select('customers.*')
+      .select('*')
+      .select('hotels.customers_id')
+      .select('hotels.name')
+      .as('hotelname')
+      .select(
+        Database.raw(
+          `json_build_object('no', no, 'street', street, 'landMark', landmark,'area', area, 'pincode', pincode) as address`
+        )
+      )
+      .join('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
       .where((query) => {
         if (/^[0-9]/.test(search)) {
-          query.where('customers_id', search).orWhere('no', 'ilike', `%${search}%`)
+          query.where('hotels.customers_id', search).orWhere('pincode', search)
         }
       })
       .orWhere((query) => {
-        query.where('hotels.name', 'ilike', `%${search}%`)
+        query
+          .where('hotels.name', 'ilike', `%${search}%`)
+          .orWhere('customers.name', 'ilike', `%${search}%`)
       })
-    const search1 = file.map((el) =>
-      Object.assign({}, el.$attributes, {
-        pincode: el.$extras.pincode,
-      })
-    )
-    console.log(search1)
+      .then((data) =>
+        data.map((el) => {
+          const data = el.toJSON()
+          return {
+            ...data,
+            name: el.$attributes.name,
+            address: el.$extras.address,
+            pincode: el.$extras.pincode,
+          }
+        })
+      )
+    console.log(file)
     return file
   }
   public async join() {
