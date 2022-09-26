@@ -113,6 +113,10 @@ var band
   export default {
     data(){
       return{
+        key:{
+          headers:{
+          appKey:'VL9VgNNmHGG4d4pCyJC2ZmI_tV95pBXs'
+         } },
         form: {},
         dialog: false,
         fork: true,
@@ -145,7 +149,7 @@ var band
     },
 
     async mounted() {
-      Vue.axios.get(`http://127.0.0.1:3333/customers/join/`,this.formInput).then((res)=>{
+      Vue.axios.get(`http://127.0.0.1:3333/customers/join/`,this.key,this.formInput).then((res)=>{
             this.list=res.data
             console.log(res.data)
             })
@@ -153,20 +157,20 @@ var band
     },
     methods: {
         async  insert(){
-        await Vue.axios.post("http://127.0.0.1:3333/customers/insert",this.formInput).then((res)=>{
+        await Vue.axios.post("http://127.0.0.1:3333/customers/insert",this.key,this.formInput).then((res)=>{
             console.log(res)          
           })
           this.dialog=false;
           this.$refs.form.reset();
         },
         async read(){
-            await Vue.axios.get("http://127.0.0.1:3333/customers/select").then((res)=>{
+            await Vue.axios.get("http://127.0.0.1:3333/customers/select",this.key,).then((res)=>{
             this.list=res.data;
             console.log(res.data);
             })
         },
         async deleteItem(id){
-           await axios.delete(`http://127.0.0.1:3333/customers/delete/${id}`)
+           await axios.delete(`http://127.0.0.1:3333/customers/delete/${id}`,this.key)
            this.read()
         },
         Changed(value) {
@@ -175,7 +179,7 @@ var band
         },
         async save() {
             this.button = true;
-            await axios.put(`http://127.0.0.1:3333/customers/update/${band.id}`,this.formInput)
+            await axios.put(`http://127.0.0.1:3333/customers/update/${band.id}`,this.key,this.formInput)
                 .then((res) => {
                 console.warn((res));
             });
@@ -186,7 +190,7 @@ var band
             this.fork = false;
             this.dialog = true;
             band = item;
-            this.formInput={name :item.name,owner : item.owner,
+            this.formInput={name :item.name,owner : item.owner,customer_id:this.customer_id
             }
         },
         close() {
@@ -200,18 +204,18 @@ var band
         },
         async getData(value){
         console.log(value)
-         let search1=await axios.post('http://127.0.0.1:3333/customers/search',{search:value})
+         let search1=await axios.post('http://127.0.0.1:3333/customers/search' , {search:value},this.key)
         this.list=search1.data
   
       },
         async asc(val){
-          await axios.get(`http://127.0.0.1:3333/customers${val}`).then((res)=>{
+          await axios.get(`http://127.0.0.1:3333/customers${val}`,this.key).then((res)=>{
             console.warn(res);
             this.list=res.data
           })
         },
         async desc(val){
-          await axios.get(`http://127.0.0.1:3333/customers${val}`).then((res)=>{
+          await axios.get(`http://127.0.0.1:3333/customers${val}`,this.key).then((res)=>{
             console.warn(res);
             this.list=res.data
           })

@@ -15,9 +15,9 @@
         <tbody>
           <tr v-for="item in list" :key="item.id">
             <td>{{item.name}}</td>
-            <td>{{item.customerId}}</td>
+            <td>{{item.customer_id}}</td>
             <td>{{item.owner}}</td>
-            <td>{{`${item.address}`}}</td>
+            <td>{{`${item.address.no +', '+item.address.street+', '+item.address.landMark+', '+item.address.area+', '+item.address.pincode}`}}</td>
             <td>{{item.pincode}}</td>          
             <td >
               <v-btn @click="editItem(item)"> 
@@ -144,6 +144,10 @@ var band
   export default {
     data(){
       return{
+        key:{
+          headers:{
+          appKey:'VL9VgNNmHGG4d4pCyJC2ZmI_tV95pBXs'
+         } },
         form: {},
         dialog: false,
         fork: true,
@@ -181,27 +185,27 @@ var band
 
     mounted(){
 
-    Vue.axios.get(`http://127.0.0.1:3333/hotels/join/`,this.formInput1).then((res)=>{
+    Vue.axios.get(`http://127.0.0.1:3333/hotels/join/`,this.key,this.formInput1).then((res)=>{
             this.list=res.data
             console.log(res.data)
           })
     }, 
     methods: {
         async  insert(){
-        await Vue.axios.post("http://127.0.0.1:3333/hotels/insert",this.formInput1).then((res)=>{
+        await Vue.axios.post("http://127.0.0.1:3333/hotels/insert",this.key,this.formInput1).then((res)=>{
             console.log(res)      
           })
           this.dialog=false;
           this.$refs.form.reset();
         },
         async read(){
-            await Vue.axios.get("http://127.0.0.1:3333/hotels/select").then((res)=>{
+            await Vue.axios.get("http://127.0.0.1:3333/hotels/select",this.key).then((res)=>{
             this.list=res.data.rows;
             console.log(res.data);
             })
         },
         async deleteItem(id){
-           await axios.delete(`http://127.0.0.1:3333/hotels/delete/${id}`)
+           await axios.delete(`http://127.0.0.1:3333/hotels/delete/${id}`,this.key)
            this.read()
         },
         Changed(value) {
@@ -210,7 +214,7 @@ var band
         },
         async save() {
             this.button = true;
-            await axios.put(`http://127.0.0.1:3333/hotels/update/${band.id}`,this.formInput1)
+            await axios.put(`http://127.0.0.1:3333/hotels/update/${band.id}`,this.key,this.formInput1)
                 .then((res) => {
                 console.warn((res));
             });
@@ -235,19 +239,19 @@ var band
         },
         async getData(value){
         console.log(value)
-        let search1=await axios.post('http://127.0.0.1:3333/hotels/search',{search:value})
+        let search1=await axios.post('http://127.0.0.1:3333/hotels/search',{search:value},this.key)
         this.list=search1.data
   
       },
 
         async asc(val){
-          await Vue.axios.get(`http://127.0.0.1:3333/hotels${val}`).then((res)=>{
+          await Vue.axios.get(`http://127.0.0.1:3333/hotels${val}`,this.key).then((res)=>{
             console.warn(res);
             this.list=res.data
           })
         },
         async desc(val){
-          await Vue.axios.get(`http://127.0.0.1:3333/hotels${val}`).then((res)=>{
+          await Vue.axios.get(`http://127.0.0.1:3333/hotels${val}`,this.key).then((res)=>{
             console.warn(res);
             this.list=res.data
           })

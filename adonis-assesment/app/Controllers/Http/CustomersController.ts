@@ -1,13 +1,15 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import ClientValidator from 'App/Validators/ClientValidator'
 import Customer from '../../Models/Customer'
 
 export default class CustomersController {
   public async insert({ request }: HttpContextContract) {
+    const val = await request.validate(ClientValidator)
     console.log(request)
     let tab = new Customer()
-    tab.customerId = request.input('customerId')
-    tab.name = request.input('name')
-    tab.owner = request.input('owner')
+    tab.customerId = val['customerId']
+    tab.name = val['name']
+    tab.owner = val['owner']
     await tab.save()
     return 'Successfully Inserted'
   }
@@ -26,31 +28,83 @@ export default class CustomersController {
     await user.save()
   }
   public async join() {
-    const data = await Customer.query()
+    const read = await Customer.query()
       .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
       .select('customers.*')
-      .groupBy('hotels.customers_id', 'customers.id')
+      .groupBy('customers.id')
       .count('hotels.customers_id as total')
-      .orderBy(`customers.*`, 'asc')
-    return data
+      .then((d) =>
+        d.map((h) => {
+          const data = h.toJSON()
+          return {
+            ...data,
+            total: h.$extras.total,
+          }
+        })
+      )
+    console.log(read)
+    return read
   }
   public async search({ request }: HttpContextContract) {
-    const file = request.input('search')
-    return await Customer.query()
-      .select('*')
+    var search = request.input('search')
+    const file = await Customer.query()
+      .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
+      .select('customers.*')
+      .select('customers.customer_id')
+      .groupBy('customers.id')
+      .count('hotels.customers_id as count')
       .where((query) => {
-        if (/^[0-9]/.test(file)) {
-          query.where('id', file)
+        if (/^[0-9]/.test(search)) {
+          query.where('customer_id', search)
         }
       })
       .orWhere((query: any) => {
-        query.orWhere('name', 'ilike', `%${file}%`)
+        query.where('customers.name', 'ilike', `%${search}%`)
       })
+    const search1 = file.map((el) =>
+      Object.assign({}, el.$attributes, {
+        total: el.$extras.total,
+      })
+    )
+    console.log(search1)
+    return search1
   }
   public async nameA() {
-    return await Customer.query().orderBy('name', 'asc')
+    const read = await Customer.query()
+      .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
+      .select('customers.*')
+      .orderBy('name', 'asc')
+      .groupBy('customers.id')
+      .count('hotels.customers_id as total')
+      .then((d) =>
+        d.map((h) => {
+          const data = h.toJSON()
+          return {
+            ...data,
+            total: h.$extras.total,
+          }
+        })
+      )
+    console.log(read)
+    return read
   }
   public async nameD() {
-    return await Customer.query().orderBy('name', 'desc')
+    const read = await Customer.query()
+      .leftJoin('hotels', 'hotels.customers_id', '=', 'customers.customer_id')
+      .select('customers.*')
+      .orderBy('name', 'desc')
+      .groupBy('customers.id')
+      .count('hotels.customers_id as total')
+      .then((d) =>
+        d.map((h) => {
+          const data = h.toJSON()
+          return {
+            ...data,
+            total: h.$extras.total,
+          }
+        })
+      )
+    console.log(read)
+    return read
   }
 }
